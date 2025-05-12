@@ -16,6 +16,3 @@ chmod 700 ${BIN}
 
 echo "docker build -t ${USER}/${BIN}:${GIT_TAG} ."
 docker build -t ${USER}/${BIN}:${GIT_TAG} .
-
-echo "> rm ${BIN}.*.tar.xz"
-rm ${BIN}.*.tar.xz

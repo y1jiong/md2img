@@ -75,7 +75,7 @@ func screenshotTasks(url string, buf *[]byte) chromedp.Tasks {
 		chromedp.Navigate(url),
 		chromedp.WaitReady("body"),
 		//chromedp.Evaluate(`MathJax.typesetPromise().then(() => true)`, nil),
-		chromedp.Sleep(time.Second), // 给一点缓冲时间
+		chromedp.Sleep(2 * time.Second), // 给一点缓冲时间
 		chromedp.FullScreenshot(buf, 100),
 	}
 }
