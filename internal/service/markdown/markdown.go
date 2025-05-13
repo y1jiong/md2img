@@ -31,6 +31,7 @@ func init() {
 		return
 	}
 	template = content
+	log.Println("custom template.html loaded")
 }
 
 // ToHTML 将Markdown转换为HTML

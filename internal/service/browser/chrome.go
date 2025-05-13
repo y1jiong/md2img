@@ -72,17 +72,19 @@ func URL(url string) ([]byte, error) {
 		return nil, fmt.Errorf("浏览器渲染失败: %w", err)
 	}
 
-	// 等待页面加载完成
-	var readyState string
-	for {
-		if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
-			return nil, fmt.Errorf("获取页面状态失败: %w", err)
-		}
-		if readyState == "complete" {
-			break
-		}
+	{
 		// 等待页面加载完成
-		time.Sleep(200 * time.Millisecond)
+		var readyState string
+		for {
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
+				return nil, fmt.Errorf("获取页面状态失败: %w", err)
+			}
+			if readyState == "complete" {
+				break
+			}
+			// 等待页面加载完成
+			time.Sleep(200 * time.Millisecond)
+		}
 	}
 
 	{
