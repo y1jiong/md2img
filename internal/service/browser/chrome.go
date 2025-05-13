@@ -3,6 +3,7 @@ package browser
 import (
 	"context"
 	"fmt"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"os"
 	"sync"
@@ -73,10 +74,44 @@ func URL(url string) ([]byte, error) {
 
 	// 等待页面加载完成
 	var readyState string
-	for readyState != "complete" {
-		time.Sleep(100 * time.Millisecond) // 避免过于频繁的检查
-		if err := chromedp.Run(ctx, chromedp.Evaluate("document.readyState", &readyState)); err != nil {
+	for {
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
 			return nil, fmt.Errorf("获取页面状态失败: %w", err)
+		}
+		if readyState == "complete" {
+			break
+		}
+		// 等待页面加载完成
+		time.Sleep(200 * time.Millisecond)
+	}
+
+	{
+		// 检查并等待MathJax渲染完成
+		var mathjaxRendered bool
+		startTime := time.Now()
+
+		for time.Since(startTime) < 10*time.Second {
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`
+(async () => {
+	try {
+		await window.MathJax?.typesetPromise?.();
+		return true;
+	} catch (e) {
+		return false;
+	}
+})()`,
+				&mathjaxRendered,
+				func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+					p = p.WithTimeout(10 * 1000)
+					return p.WithAwaitPromise(true)
+				})); err != nil {
+				return nil, fmt.Errorf("检查/等待MathJax失败: %w", err)
+			}
+			if mathjaxRendered {
+				break
+			}
+			// 等待MathJax渲染完成
+			time.Sleep(200 * time.Millisecond)
 		}
 	}
 
