@@ -8,10 +8,10 @@ Markdown to Image.
 
 ### Usage
 
-```bash
-POST /markdown
-POST /html
-POST /url
+```text
+POST /markdown?width=0&mobile=false
+POST /html?width=0&mobile=false
+POST /url?width=0&mobile=false
 ```
 
 Post `markdown` / `html` / `url` to get image.

@@ -33,9 +33,9 @@ func main() {
 	mux.HandleFunc("POST /url", controller.URL)
 
 	log.Println("Server running on", *addressFlag)
-	log.Println("POST /markdown")
-	log.Println("POST /html")
-	log.Println("POST /url")
+	log.Println("POST /markdown?width=0&mobile=false")
+	log.Println("POST /html?width=0&mobile=false")
+	log.Println("POST /url?width=0&mobile=false")
 
 	// 启动
 	log.Fatal(http.ListenAndServe(*addressFlag, mux))

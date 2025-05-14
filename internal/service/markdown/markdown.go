@@ -36,13 +36,11 @@ func init() {
 
 // ToHTML 将Markdown转换为HTML
 func ToHTML(md string) string {
-	md = mathReplacer.Replace(md)
-
 	// 创建Lute引擎
 	engine := lute.New()
 
 	// 转换Markdown为HTML
-	htmlContent := engine.MarkdownStr("", md)
+	htmlContent := engine.MarkdownStr("", mathReplacer.Replace(md))
 
 	// 构建完整的HTML文档
 	return fmt.Sprintf(template, htmlContent)

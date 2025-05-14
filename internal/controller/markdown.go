@@ -19,11 +19,18 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// Query parameters
+	query := r.URL.Query()
+	width, mobile := queryWidth(query), queryMobile(query)
+	if width == 0 {
+		width = 550
+	}
+
 	// 转换Markdown为HTML
 	html := markdown.ToHTML(util.BytesToStr(content))
 
 	// 渲染为图片
-	imageData, err := browser.HTML(html)
+	imageData, err := browser.HTML(html, width, mobile)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return

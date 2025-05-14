@@ -23,8 +23,19 @@ func URL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Query parameters
+	query := r.URL.Query()
+	width, mobile := queryWidth(query), queryMobile(query)
+	if width == 0 {
+		if mobile {
+			width = 550
+		} else {
+			width = 1280
+		}
+	}
+
 	// 渲染URL为图片
-	imageData, err := browser.URL(url)
+	imageData, err := browser.URL(url, width, mobile)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return

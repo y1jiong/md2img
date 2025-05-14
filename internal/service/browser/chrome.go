@@ -3,6 +3,7 @@ package browser
 import (
 	"context"
 	"fmt"
+	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"os"
@@ -37,7 +38,7 @@ func initBrowser() {
 	})
 }
 
-func HTML(html string) ([]byte, error) {
+func HTML(html string, width int64, mobile bool) ([]byte, error) {
 	// 创建临时HTML文件
 	tempFile, err := os.CreateTemp("", "render-*.html")
 	if err != nil {
@@ -51,10 +52,10 @@ func HTML(html string) ([]byte, error) {
 	tempFile.Close()
 
 	// 渲染为图片
-	return URL("file://" + tempFile.Name())
+	return URL("file://"+tempFile.Name(), width, mobile)
 }
 
-func URL(url string) ([]byte, error) {
+func URL(url string, width int64, mobile bool) ([]byte, error) {
 	initBrowser()
 
 	tabCtx, tabCancel := chromedp.NewContext(browserCtx)
@@ -66,6 +67,7 @@ func URL(url string) ([]byte, error) {
 
 	// 运行Chrome任务
 	if err := chromedp.Run(ctx, chromedp.Tasks{
+		emulation.SetDeviceMetricsOverride(width, 0, 2, mobile),
 		chromedp.Navigate(url),
 		chromedp.WaitReady("body"),
 	}); err != nil {
@@ -75,7 +77,8 @@ func URL(url string) ([]byte, error) {
 	{
 		// 等待页面加载完成
 		var readyState string
-		for {
+		startTime := time.Now()
+		for time.Since(startTime) < 10*time.Second {
 			if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
 				return nil, fmt.Errorf("获取页面状态失败: %w", err)
 			}
