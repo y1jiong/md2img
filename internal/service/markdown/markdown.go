@@ -45,6 +45,9 @@ func ToHTML(md string) string {
 	// 转换Markdown为HTML
 	htmlContent := engine.MarkdownStr("", mathReplacer.Replace(md))
 
+	// 处理Mermaid图表
+	htmlContent = strings.ReplaceAll(htmlContent, `class="language-mermaid"`, `class="mermaid"`)
+
 	// 构建完整的HTML文档
 	return strings.Replace(template, placeholder, htmlContent, 1)
 }
