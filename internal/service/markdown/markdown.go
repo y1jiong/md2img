@@ -2,11 +2,14 @@ package markdown
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/88250/lute"
 	"log"
 	"os"
 	"strings"
+)
+
+const (
+	placeholder = "{{.}}"
 )
 
 var (
@@ -26,7 +29,7 @@ func init() {
 		return
 	}
 	content := string(contentBytes)
-	if strings.Count(content, "%s") != 1 {
+	if strings.Count(content, placeholder) != 1 {
 		log.Println("template.html format error")
 		return
 	}
@@ -43,5 +46,5 @@ func ToHTML(md string) string {
 	htmlContent := engine.MarkdownStr("", mathReplacer.Replace(md))
 
 	// 构建完整的HTML文档
-	return fmt.Sprintf(template, htmlContent)
+	return strings.Replace(template, placeholder, htmlContent, 1)
 }
