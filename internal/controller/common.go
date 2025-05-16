@@ -6,6 +6,11 @@ import (
 	"strconv"
 )
 
+const (
+	mobileWidth  = 440
+	desktopWidth = 1280
+)
+
 func queryWidth(query url.Values) (width int64) {
 	widthStr := query.Get("width")
 	if widthStr == "" {

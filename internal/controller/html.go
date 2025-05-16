@@ -23,9 +23,9 @@ func HTML(w http.ResponseWriter, r *http.Request) {
 	width, mobile := queryWidth(query), queryMobile(query)
 	if width == 0 {
 		if mobile {
-			width = 550
+			width = mobileWidth
 		} else {
-			width = 1280
+			width = desktopWidth
 		}
 	}
 

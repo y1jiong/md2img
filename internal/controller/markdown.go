@@ -23,7 +23,7 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	width, mobile := queryWidth(query), queryMobile(query)
 	if width == 0 {
-		width = 550
+		width = mobileWidth
 	}
 
 	// 转换Markdown为HTML

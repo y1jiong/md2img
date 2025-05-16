@@ -14,5 +14,5 @@ fi
 echo "> chmod 700 ${BIN}"
 chmod 700 ${BIN}
 
-echo "docker build -t ${USER}/${BIN}:${GIT_TAG} ."
+echo "> docker build -t ${USER}/${BIN}:${GIT_TAG} ."
 docker build -t ${USER}/${BIN}:${GIT_TAG} .
