@@ -32,8 +32,8 @@ func main() {
 	mux.HandleFunc("POST /html", controller.HTML)
 	mux.HandleFunc("POST /url", controller.URL)
 
-	log.Println("Server running on", *addressFlag)
-	log.Println("POST /markdown?width=0&mobile=false")
+	log.Println("http server started listening on", *addressFlag)
+	log.Println("POST /markdown?width=0&mobile=false&html=false")
 	log.Println("POST /html?width=0&mobile=false")
 	log.Println("POST /url?width=0&mobile=false")
 

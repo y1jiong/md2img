@@ -41,7 +41,7 @@ func init() {
 }
 
 // ToHTML 将Markdown转换为HTML
-func ToHTML(md string) string {
+func ToHTML(md string, pure bool) string {
 	// 初始化模板
 	tmpl := template
 
@@ -61,6 +61,10 @@ func ToHTML(md string) string {
 	if strings.Contains(htmlContent, `class="language-mermaid"`) {
 		tmpl = strings.Replace(tmpl, mermaidPlaceholder, mermaid, 1)
 		htmlContent = strings.ReplaceAll(htmlContent, `class="language-mermaid"`, `class="mermaid"`)
+	}
+
+	if pure {
+		return htmlContent
 	}
 
 	// 清理占位符

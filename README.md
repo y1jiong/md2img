@@ -9,7 +9,7 @@ Markdown to Image.
 ### Usage
 
 ```text
-POST /markdown?width=0&mobile=false
+POST /markdown?width=0&mobile=false&html=false
 POST /html?width=0&mobile=false
 POST /url?width=0&mobile=false
 ```
