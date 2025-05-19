@@ -38,7 +38,7 @@ func initBrowser() {
 	})
 }
 
-func HTML(html string, width int64, mobile bool) ([]byte, error) {
+func HTML(html []byte, width int64, mobile bool) ([]byte, error) {
 	// 创建临时HTML文件
 	tempFile, err := os.CreateTemp("", "render-*.html")
 	if err != nil {
@@ -46,7 +46,7 @@ func HTML(html string, width int64, mobile bool) ([]byte, error) {
 	}
 	defer os.Remove(tempFile.Name())
 
-	if _, err := tempFile.Write([]byte(html)); err != nil {
+	if _, err := tempFile.Write(html); err != nil {
 		return nil, err
 	}
 	tempFile.Close()

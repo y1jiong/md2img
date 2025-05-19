@@ -1,9 +1,15 @@
 package markdown
 
 import (
+	"bytes"
 	_ "embed"
-	"github.com/88250/lute"
+	"github.com/litao91/goldmark-mathjax"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark-highlighting/v2"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer/html"
 	"log"
+	"md2img/util"
 	"os"
 	"strings"
 )
@@ -12,25 +18,41 @@ const (
 	htmlPlaceholder    = "{{.}}"
 	mathjaxPlaceholder = "{{mathjax}}"
 	mermaidPlaceholder = "{{mermaid}}"
+
+	blockMath  = `\[`
+	inlineMath = `\(`
 )
 
 var (
 	//go:embed template.html
-	template string
+	templateHTML string
 	//go:embed mathjax.html
-	mathjax string
+	mathjaxHTML string
 	//go:embed mermaid.html
-	mermaid string
+	mermaidHTML string
 
 	mathReplacer = strings.NewReplacer(
-		`\[`, `\\[`,
-		`\]`, `\\]`,
-		`\(`, `\\(`,
-		`\)`, `\\)`,
+		`\[`, `$$`,
+		`\]`, `$$`,
+		`\(`, `$`,
+		`\)`, `$`,
 	)
 	clearReplacer = strings.NewReplacer(
 		mathjaxPlaceholder, "",
 		mermaidPlaceholder, "",
+	)
+
+	engine = goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			extension.CJK,
+			extension.Footnote,
+			highlighting.Highlighting,
+			mathjax.MathJax,
+		),
+		goldmark.WithRendererOptions(
+			html.WithUnsafe(),
+		),
 	)
 )
 
@@ -43,23 +65,32 @@ func init() {
 // ToHTML 将Markdown转换为HTML
 func ToHTML(md string, pure bool) string {
 	// 初始化模板
-	tmpl := template
+	tmpl := templateHTML
 
-	// 创建Lute引擎
-	engine := lute.New()
-
-	// 处理MathJax LaTeX
-	if strings.Contains(md, `\[`) || strings.Contains(md, `\(`) {
-		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjax, 1)
+	// 预处理MathJax LaTeX
+	mathjaxLoaded := false
+	if strings.Contains(md, blockMath) || strings.Contains(md, inlineMath) {
+		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjaxHTML, 1)
 		md = mathReplacer.Replace(md)
+		mathjaxLoaded = true
 	}
 
 	// 转换Markdown为HTML
-	htmlContent := engine.MarkdownStr("", md)
+	var htmlContent string
+	{
+		var buf bytes.Buffer
+		_ = engine.Convert(util.StringToBytes(md), &buf)
+		htmlContent = buf.String()
+	}
+
+	// 处理MathJax LaTeX
+	if !mathjaxLoaded && strings.Contains(htmlContent, blockMath) || strings.Contains(htmlContent, inlineMath) {
+		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjaxHTML, 1)
+	}
 
 	// 处理Mermaid图表
 	if strings.Contains(htmlContent, `class="language-mermaid"`) {
-		tmpl = strings.Replace(tmpl, mermaidPlaceholder, mermaid, 1)
+		tmpl = strings.Replace(tmpl, mermaidPlaceholder, mermaidHTML, 1)
 		htmlContent = strings.ReplaceAll(htmlContent, `class="language-mermaid"`, `class="mermaid"`)
 	}
 
@@ -84,7 +115,7 @@ func initTemplate() {
 		log.Println("template.html format error")
 		return
 	}
-	template = content
+	templateHTML = content
 	log.Println("custom template.html loaded")
 }
 
@@ -93,7 +124,7 @@ func initMathjax() {
 	if err != nil {
 		return
 	}
-	mathjax = string(contentBytes)
+	mathjaxHTML = string(contentBytes)
 	log.Println("custom mathjax.html loaded")
 }
 
@@ -102,6 +133,6 @@ func initMermaid() {
 	if err != nil {
 		return
 	}
-	mermaid = string(contentBytes)
+	mermaidHTML = string(contentBytes)
 	log.Println("custom mermaid.html loaded")
 }

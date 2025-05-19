@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"github.com/88250/lute/util"
 	"io"
 	"md2img/internal/service/browser"
 	"net/http"
@@ -30,7 +29,7 @@ func HTML(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 渲染HTML为图片
-	imageData, err := browser.HTML(util.BytesToStr(content), width, mobile)
+	imageData, err := browser.HTML(content, width, mobile)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return

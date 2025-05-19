@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"github.com/88250/lute/util"
 	"io"
 	"md2img/internal/service/browser"
 	"md2img/internal/service/markdown"
+	"md2img/util"
 	"net/http"
 	"net/url"
 )
@@ -36,7 +36,7 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 转换Markdown为HTML
-	html := markdown.ToHTML(util.BytesToStr(content), pure)
+	html := markdown.ToHTML(util.BytesToString(content), pure)
 
 	if pure {
 		// 返回HTML
@@ -45,7 +45,7 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 渲染为图片
-	imageData, err := browser.HTML(html, width, mobile)
+	imageData, err := browser.HTML(util.StringToBytes(html), width, mobile)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return
