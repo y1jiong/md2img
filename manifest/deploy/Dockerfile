@@ -1,23 +1,38 @@
-FROM zenika/alpine-chrome:latest
+FROM alpine:latest
 
-USER root
+# Configure Alpine mirror (optional, for faster downloads in China)
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
 
-# 更新并安装中文字体（文泉驿不好看还得是思源）
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories && \
-    apk update && apk add --no-cache \
-        fontconfig \
-        font-noto-cjk \
-        && \
-    apk del font-wqy-zenhei && \
+# Install Chromium and fonts in a single layer
+RUN apk upgrade --no-cache --available && \
+    apk add --no-cache \
+      chromium-swiftshader \
+      fontconfig \
+      font-noto-cjk \
+      font-noto-emoji \
+    && \
     rm -rf /var/cache/apk/*
 
+# Add font configuration
 COPY local.conf /etc/fonts/local.conf
 RUN fc-cache -f
 
-USER chrome
+# Add Chrome as a user
+RUN mkdir -p /usr/src/app && \
+    adduser -D chrome && \
+    chown -R chrome:chrome /usr/src/app
 
-COPY md2img /app/md2img
+# Copy application
+COPY --chown=chrome:chrome md2img /app/md2img
+
+# Set environment variables
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/ \
+    CHROMIUM_FLAGS="--disable-software-rasterizer --disable-dev-shm-usage"
+
+# Switch to non-privileged user
+USER chrome
 WORKDIR /app
 
-# 使用 ENTRYPOINT 来支持传参
+# Set the entrypoint
 ENTRYPOINT ["/app/md2img"]
