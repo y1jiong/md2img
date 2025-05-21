@@ -84,7 +84,7 @@ func ToHTML(md string, pure bool) string {
 	}
 
 	// 处理MathJax LaTeX
-	if !mathjaxLoaded && strings.Contains(htmlContent, blockMath) || strings.Contains(htmlContent, inlineMath) {
+	if !mathjaxLoaded && (strings.Contains(htmlContent, blockMath) || strings.Contains(htmlContent, inlineMath)) {
 		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjaxHTML, 1)
 	}
 
