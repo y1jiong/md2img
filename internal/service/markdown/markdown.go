@@ -3,11 +3,6 @@ package markdown
 import (
 	"bytes"
 	_ "embed"
-	"github.com/litao91/goldmark-mathjax"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark-highlighting/v2"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/renderer/html"
 	"log"
 	"md2img/util"
 	"os"
@@ -19,8 +14,9 @@ const (
 	mathjaxPlaceholder = "{{mathjax}}"
 	mermaidPlaceholder = "{{mermaid}}"
 
-	blockMath  = `\[`
-	inlineMath = `\(`
+	blockMathL, blockMathR    = `\[`, `\]`
+	inlineMathL, inlineMathR  = `\(`, `\)`
+	blockMathMd, inlineMathMd = `$$`, `$`
 )
 
 var (
@@ -31,28 +27,9 @@ var (
 	//go:embed mermaid.html
 	mermaidHTML string
 
-	mathReplacer = strings.NewReplacer(
-		`\[`, `$$`,
-		`\]`, `$$`,
-		`\(`, `$`,
-		`\)`, `$`,
-	)
 	clearReplacer = strings.NewReplacer(
 		mathjaxPlaceholder, "",
 		mermaidPlaceholder, "",
-	)
-
-	engine = goldmark.New(
-		goldmark.WithExtensions(
-			extension.GFM,
-			extension.CJK,
-			extension.Footnote,
-			highlighting.Highlighting,
-			mathjax.MathJax,
-		),
-		goldmark.WithRendererOptions(
-			html.WithUnsafe(),
-		),
 	)
 )
 
@@ -67,12 +44,10 @@ func ToHTML(md string, pure bool) string {
 	// 初始化模板
 	tmpl := templateHTML
 
-	// 预处理MathJax LaTeX
-	mathjaxLoaded := false
-	if strings.Contains(md, blockMath) || strings.Contains(md, inlineMath) {
+	// 前置处理MathJax LaTeX
+	if strings.Contains(md, blockMathL) || strings.Contains(md, inlineMathL) ||
+		strings.Contains(md, blockMathMd) || strings.Contains(md, inlineMathMd) {
 		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjaxHTML, 1)
-		md = mathReplacer.Replace(md)
-		mathjaxLoaded = true
 	}
 
 	// 转换Markdown为HTML
@@ -83,12 +58,7 @@ func ToHTML(md string, pure bool) string {
 		htmlContent = buf.String()
 	}
 
-	// 处理MathJax LaTeX
-	if !mathjaxLoaded && (strings.Contains(htmlContent, blockMath) || strings.Contains(htmlContent, inlineMath)) {
-		tmpl = strings.Replace(tmpl, mathjaxPlaceholder, mathjaxHTML, 1)
-	}
-
-	// 处理Mermaid图表
+	// 后置处理Mermaid图表
 	if strings.Contains(htmlContent, `class="language-mermaid"`) {
 		tmpl = strings.Replace(tmpl, mermaidPlaceholder, mermaidHTML, 1)
 		htmlContent = strings.ReplaceAll(htmlContent, `class="language-mermaid"`, `class="mermaid"`)

@@ -3,9 +3,10 @@ module md2img
 go 1.24
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20250518235601-40b4c35ec9fe
+	github.com/chromedp/cdproto v0.0.0-20250521201632-aadd49e0822c
 	github.com/chromedp/chromedp v0.13.6
-	github.com/litao91/goldmark-mathjax v0.0.0-20210217064022-a43cf739a50f
+	github.com/gohugoio/hugo-goldmark-extensions/extras v0.3.0
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
 	github.com/spf13/pflag v1.0.6
 	github.com/yuin/goldmark v1.7.12
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
