@@ -7,22 +7,22 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
 const (
+	fileUrlPrefix = "file://"
+
 	contextTimeout = 30 * time.Second
 )
 
 var (
 	allocatorCtx context.Context
 	browserCtx   context.Context
-	initOnce     sync.Once
-)
 
-func initBrowser() {
-	initOnce.Do(func() {
+	initBrowser = sync.OnceFunc(func() {
 		// 创建无头Chrome实例
 		options := []chromedp.ExecAllocatorOption{
 			chromedp.Flag("headless", "new"),          // 启用全新无头模式
@@ -36,7 +36,7 @@ func initBrowser() {
 		)
 		browserCtx, _ = chromedp.NewContext(allocatorCtx)
 	})
-}
+)
 
 func HTML(html []byte, width int64, mobile bool) ([]byte, error) {
 	// 创建临时HTML文件
@@ -52,7 +52,7 @@ func HTML(html []byte, width int64, mobile bool) ([]byte, error) {
 	tempFile.Close()
 
 	// 渲染为图片
-	return URL("file://"+tempFile.Name(), width, mobile)
+	return URL(fileUrlPrefix+tempFile.Name(), width, mobile)
 }
 
 func URL(url string, width int64, mobile bool) ([]byte, error) {
@@ -109,10 +109,12 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 				func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 					p = p.WithTimeout(10 * 1000)
 					return p.WithAwaitPromise(true)
-				})); err != nil {
+				},
+			)); err != nil {
 				return nil, fmt.Errorf("检查/等待MathJax失败: %w", err)
 			}
 			if mathjaxRendered {
+				time.Sleep(100 * time.Millisecond)
 				break
 			}
 			// 等待MathJax渲染完成
@@ -120,14 +122,16 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 		}
 	}
 
+	if !strings.HasPrefix(url, fileUrlPrefix) {
+		// 等待页面稳定
+		time.Sleep(500 * time.Millisecond)
+	}
+
 	// 用于存储屏幕截图的字节数组
 	var buf []byte
 
 	// 执行截图任务
-	if err := chromedp.Run(ctx, chromedp.Tasks{
-		chromedp.Sleep(500 * time.Millisecond), // 等待页面稳定
-		chromedp.FullScreenshot(&buf, 100),
-	}); err != nil {
+	if err := chromedp.Run(ctx, chromedp.FullScreenshot(&buf, 100)); err != nil {
 		return nil, fmt.Errorf("截图失败: %w", err)
 	}
 
