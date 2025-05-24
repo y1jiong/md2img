@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/cdproto/emulation"
-	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"os"
 	"strings"
@@ -74,52 +73,8 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 		return nil, fmt.Errorf("浏览器渲染失败: %w", err)
 	}
 
-	{
-		// 等待页面加载完成
-		var readyState string
-		startTime := time.Now()
-		for time.Since(startTime) < 10*time.Second {
-			if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
-				return nil, fmt.Errorf("获取页面状态失败: %w", err)
-			}
-			if readyState == "complete" {
-				break
-			}
-			// 等待页面加载完成
-			time.Sleep(200 * time.Millisecond)
-		}
-	}
-
-	{
-		// 检查并等待MathJax渲染完成
-		var mathjaxRendered bool
-		startTime := time.Now()
-
-		for time.Since(startTime) < 10*time.Second {
-			if err := chromedp.Run(ctx, chromedp.Evaluate(`
-(async () => {
-	try {
-		await window.MathJax?.typesetPromise?.();
-		return true;
-	} catch (e) {
-		return false;
-	}
-})()`,
-				&mathjaxRendered,
-				func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
-					p = p.WithTimeout(10 * 1000)
-					return p.WithAwaitPromise(true)
-				},
-			)); err != nil {
-				return nil, fmt.Errorf("检查/等待MathJax失败: %w", err)
-			}
-			if mathjaxRendered {
-				time.Sleep(100 * time.Millisecond)
-				break
-			}
-			// 等待MathJax渲染完成
-			time.Sleep(200 * time.Millisecond)
-		}
+	if err := waitReady(ctx); err != nil {
+		return nil, fmt.Errorf("等待页面状态失败: %w", err)
 	}
 
 	if !strings.HasPrefix(url, fileUrlPrefix) {
@@ -136,4 +91,20 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 	}
 
 	return buf, nil
+}
+
+func waitReady(ctx context.Context) error {
+	var readyState string
+	startTime := time.Now()
+	for time.Since(startTime) < 10*time.Second {
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
+			return err
+		}
+		if readyState == "complete" {
+			break
+		}
+		// 等待页面加载完成
+		time.Sleep(100 * time.Millisecond)
+	}
+	return nil
 }
