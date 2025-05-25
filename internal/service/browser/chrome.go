@@ -2,8 +2,10 @@ package browser
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/chromedp/cdproto/emulation"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"os"
 	"strings"
@@ -18,8 +20,7 @@ const (
 )
 
 var (
-	allocatorCtx context.Context
-	browserCtx   context.Context
+	browserCtx context.Context
 
 	initBrowser = sync.OnceFunc(func() {
 		// 创建无头Chrome实例
@@ -29,7 +30,7 @@ var (
 			chromedp.Flag("no-sandbox", true),         // 有些系统必须禁用 sandbox
 			chromedp.Flag("enable-automation", false), // 禁用自动化提示
 		}
-		allocatorCtx, _ = chromedp.NewExecAllocator(
+		allocatorCtx, _ := chromedp.NewExecAllocator(
 			context.Background(),
 			append(chromedp.DefaultExecAllocatorOptions[:], options...)...,
 		)
@@ -69,17 +70,15 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 		emulation.SetDeviceMetricsOverride(width, 0, 2, mobile),
 		chromedp.Navigate(url),
 		chromedp.WaitReady("body"),
+		chromedp.Poll(`document.readyState === 'complete'`, nil),
 	}); err != nil {
 		return nil, fmt.Errorf("浏览器渲染失败: %w", err)
 	}
 
-	if err := waitReady(ctx); err != nil {
-		return nil, fmt.Errorf("等待页面状态失败: %w", err)
-	}
-
 	if !strings.HasPrefix(url, fileUrlPrefix) {
-		// 等待页面稳定
-		time.Sleep(500 * time.Millisecond)
+		if err := chromedp.Run(ctx, waitForDOMStable(150, time.Second)); err != nil {
+			return nil, fmt.Errorf("DOM稳定性检查失败: %w", err)
+		}
 	}
 
 	// 用于存储屏幕截图的字节数组
@@ -93,18 +92,38 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 	return buf, nil
 }
 
-func waitReady(ctx context.Context) error {
-	var readyState string
-	startTime := time.Now()
-	for time.Since(startTime) < 10*time.Second {
-		if err := chromedp.Run(ctx, chromedp.Evaluate(`document.readyState`, &readyState)); err != nil {
+func waitForDOMStable(settleDelayMS int, timeout time.Duration) chromedp.ActionFunc {
+	return func(ctx context.Context) error {
+		const script = `
+new Promise(resolve => {
+	let timeout;
+	const observer = new MutationObserver(() => {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => {
+			observer.disconnect();
+			resolve();
+		}, %d);
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
+
+	// 初始 fallback，确保 resolve 一定发生
+	timeout = setTimeout(() => {
+		observer.disconnect();
+		resolve();
+	}, %d);
+})`
+		ctx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		if err := chromedp.Evaluate(
+			fmt.Sprintf(script, settleDelayMS, settleDelayMS),
+			nil,
+			func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+				return p.WithAwaitPromise(true)
+			},
+		).Do(ctx); err != nil && !errors.Is(err, context.DeadlineExceeded) {
 			return err
 		}
-		if readyState == "complete" {
-			break
-		}
-		// 等待页面加载完成
-		time.Sleep(100 * time.Millisecond)
+		return nil
 	}
-	return nil
 }

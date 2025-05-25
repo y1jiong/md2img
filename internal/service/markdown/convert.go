@@ -4,6 +4,7 @@ import (
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/yuin/goldmark"
+	emoji "github.com/yuin/goldmark-emoji"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -20,7 +21,9 @@ var (
 			extension.Linkify,  // Part of GFM
 			extension.TaskList, // Part of GFM
 			extension.Footnote,
+			extension.DefinitionList,
 			highlighting.Highlighting,
+			emoji.Emoji,
 			passthrough.New(
 				passthrough.Config{
 					BlockDelimiters: []passthrough.Delimiters{

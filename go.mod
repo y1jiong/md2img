@@ -9,6 +9,7 @@ require (
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
 	github.com/spf13/pflag v1.0.6
 	github.com/yuin/goldmark v1.7.12
+	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )
 
