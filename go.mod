@@ -3,8 +3,8 @@ module md2img
 go 1.24
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20250521201632-aadd49e0822c
-	github.com/chromedp/chromedp v0.13.6
+	github.com/chromedp/cdproto v0.0.0-20250621212827-3f1355e655b9
+	github.com/chromedp/chromedp v0.13.7
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.3.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
 	github.com/spf13/pflag v1.0.6
