@@ -11,6 +11,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "> rm ._*"
+rm ._*
+
 echo "> chmod 700 ${BIN}"
 chmod 700 ${BIN}
 
