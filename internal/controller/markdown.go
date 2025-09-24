@@ -30,7 +30,7 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 
 	// Query parameters
 	query := r.URL.Query()
-	width, mobile, pure := queryWidth(query), queryMobile(query), queryHTML(query)
+	width, mobile, pure, wait := queryWidth(query), queryMobile(query), queryHTML(query), queryWait(query)
 	if width == 0 {
 		width = mobileWidth
 	}
@@ -45,7 +45,7 @@ func Markdown(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 渲染为图片
-	imageData, err := browser.HTML(util.StringToBytes(html), width, mobile)
+	imageData, err := browser.HTML(util.StringToBytes(html), width, mobile, wait)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return

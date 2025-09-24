@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 const (
@@ -25,6 +26,15 @@ func queryMobile(query url.Values) (mobile bool) {
 	case "1", "true", "True", "TRUE":
 		mobile = true
 	}
+	return
+}
+
+func queryWait(query url.Values) (wait time.Duration) {
+	waitStr := query.Get("wait")
+	if waitStr == "" {
+		return
+	}
+	wait, _ = time.ParseDuration(waitStr)
 	return
 }
 

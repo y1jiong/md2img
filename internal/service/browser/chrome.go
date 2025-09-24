@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/chromedp/cdproto/emulation"
-	"github.com/chromedp/cdproto/runtime"
-	"github.com/chromedp/chromedp"
+	"md2img/util"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/chromedp/cdproto/emulation"
+	"github.com/chromedp/cdproto/runtime"
+	"github.com/chromedp/chromedp"
 )
 
 const (
@@ -38,7 +40,7 @@ var (
 	})
 )
 
-func HTML(html []byte, width int64, mobile bool) ([]byte, error) {
+func HTML(html []byte, width int64, mobile bool, wait time.Duration) ([]byte, error) {
 	// 创建临时HTML文件
 	tempFile, err := os.CreateTemp("", "render-*.html")
 	if err != nil {
@@ -52,10 +54,10 @@ func HTML(html []byte, width int64, mobile bool) ([]byte, error) {
 	tempFile.Close()
 
 	// 渲染为图片
-	return URL(fileUrlPrefix+tempFile.Name(), width, mobile)
+	return URL(fileUrlPrefix+tempFile.Name(), width, mobile, wait)
 }
 
-func URL(url string, width int64, mobile bool) ([]byte, error) {
+func URL(url string, width int64, mobile bool, wait time.Duration) ([]byte, error) {
 	initBrowser()
 
 	tabCtx, tabCancel := chromedp.NewContext(browserCtx)
@@ -83,6 +85,9 @@ func URL(url string, width int64, mobile bool) ([]byte, error) {
 
 	// 用于存储屏幕截图的字节数组
 	var buf []byte
+
+	// 等待额外的时间以确保所有动态内容加载完成
+	util.Sleep(ctx, wait)
 
 	// 执行截图任务
 	if err := chromedp.Run(ctx, chromedp.FullScreenshot(&buf, 100)); err != nil {
