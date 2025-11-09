@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <!-- GitHub Markdown Light Style -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css">
+    <!-- https://cdn.zstatic.net/libraries/github-markdown-css -->
+    <link rel="stylesheet"
+          href="https://s4.zstatic.net/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css"
+          integrity="sha512-X175XRJAO6PHAUi8AA7GP8uUF5Wiv+w9bOi64i02CHKDQBsO1yy0jLSKaUKg/NhRCDYBmOLQCfKaTaXiyZlLrw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <style>
         body {
             background-color: white;
@@ -13,23 +17,26 @@
             justify-content: center;
             padding: 2rem 1.5rem;
         }
+
         .markdown-body {
             width: 100%;
         }
+
         .markdown-body pre,
         .markdown-body table {
             min-width: max-content;
         }
+
         .markdown-body table {
             padding-right: 1.5rem;
         }
     </style>
-{{mathjax}}
-{{mermaid}}
+    {{mathjax}}
+    {{mermaid}}
 </head>
 <body>
 <article class="markdown-body">
-{{.}}
+    {{.}}
 </article>
 </body>
 </html>

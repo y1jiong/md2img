@@ -4,7 +4,7 @@ import "runtime"
 
 const (
 	ProjName = "md2img"
-	Version  = "0.3.4"
+	Version  = "0.3.5"
 )
 
 var (
