@@ -6,7 +6,7 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsing
 # Install Chromium and fonts in a single layer
 RUN apk upgrade --no-cache --available && \
     apk add --no-cache \
-      chromium-swiftshader \
+      chromium \
       fontconfig \
       font-noto-cjk \
       font-noto-emoji \
