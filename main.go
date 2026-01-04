@@ -1,11 +1,12 @@
 package main
 
 import (
-	flag "github.com/spf13/pflag"
 	"log"
 	"md2img/internal/cmd"
 	"md2img/internal/controller"
 	"net/http"
+
+	flag "github.com/spf13/pflag"
 )
 
 var (
@@ -33,9 +34,9 @@ func main() {
 	mux.HandleFunc("POST /url", controller.URL)
 
 	log.Println("http server started listening on", *addressFlag)
-	log.Println("POST /markdown?width=0&mobile=false&html=false")
-	log.Println("POST /html?width=0&mobile=false")
-	log.Println("POST /url?width=0&mobile=false")
+	log.Println("POST /markdown?width=0&mobile=false&html=false&wait=1s")
+	log.Println("POST /html?width=0&mobile=false&wait=1s")
+	log.Println("POST /url?width=0&mobile=false&wait=1s")
 
 	// 启动
 	log.Fatal(http.ListenAndServe(*addressFlag, mux))

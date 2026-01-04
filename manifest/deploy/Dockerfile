@@ -6,7 +6,7 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsing
 # Install Chromium and fonts in a single layer
 RUN apk upgrade --no-cache --available && \
     apk add --no-cache \
-      chromium-swiftshader \
+      chromium \
       fontconfig \
       font-noto-cjk \
       font-noto-emoji \
@@ -18,9 +18,7 @@ COPY local.conf /etc/fonts/local.conf
 RUN fc-cache -f
 
 # Add Chrome as a user
-RUN mkdir -p /usr/src/app && \
-    adduser -D chrome && \
-    chown -R chrome:chrome /usr/src/app
+RUN adduser -D chrome
 
 # Copy application
 COPY --chown=chrome:chrome md2img /app/md2img

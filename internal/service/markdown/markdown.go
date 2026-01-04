@@ -10,6 +10,10 @@ import (
 )
 
 const (
+	templateName = "template.html"
+	mathjaxName  = "mathjax.html"
+	mermaidName  = "mermaid.html"
+
 	htmlPlaceholder    = "{{.}}"
 	mathjaxPlaceholder = "{{mathjax}}"
 	mermaidPlaceholder = "{{mermaid}}"
@@ -35,8 +39,8 @@ var (
 
 func init() {
 	initTemplate()
-	initMathjax()
-	initMermaid()
+	initTmpl(mathjaxName, &mathjaxHTML)
+	initTmpl(mermaidName, &mermaidHTML)
 }
 
 // ToHTML 将Markdown转换为HTML
@@ -76,33 +80,30 @@ func ToHTML(md string, pure bool) string {
 }
 
 func initTemplate() {
-	contentBytes, err := os.ReadFile("template.html")
-	if err != nil {
+	var content string
+	initTmpl(templateName, &content)
+	if content == "" {
 		return
 	}
-	content := string(contentBytes)
 	if strings.Count(content, htmlPlaceholder) != 1 {
-		log.Println("template.html format error")
+		log.Println("custom", templateName, "invalid: missing or multiple", htmlPlaceholder)
 		return
 	}
 	templateHTML = content
-	log.Println("custom template.html loaded")
+	log.Println("custom", templateName, "loaded")
 }
 
-func initMathjax() {
-	contentBytes, err := os.ReadFile("mathjax.html")
+func initTmpl(name string, target *string) {
+	contentBytes, err := os.ReadFile(name)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+		log.Println("read", name, "failed:", err)
 		return
 	}
-	mathjaxHTML = string(contentBytes)
-	log.Println("custom mathjax.html loaded")
-}
-
-func initMermaid() {
-	contentBytes, err := os.ReadFile("mermaid.html")
-	if err != nil {
-		return
+	*target = string(contentBytes)
+	if name != templateName {
+		log.Println("custom", name, "loaded")
 	}
-	mermaidHTML = string(contentBytes)
-	log.Println("custom mermaid.html loaded")
 }
