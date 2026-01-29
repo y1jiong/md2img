@@ -34,7 +34,7 @@ check:
 
 .PHONY: third-party-upgrade
 third-party-upgrade:
-	@go get -u all
+	@go get -u ./...
 	@echo $@ completed.
 
 .PHONY: clean
@@ -46,7 +46,7 @@ clean:
 .PHONY: linux-amd64
 linux-amd64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME) >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME)
 	@echo $@ build completed.
@@ -54,7 +54,7 @@ linux-amd64:
 .PHONY: linux-amd64v3
 linux-amd64v3:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=linux GOARCH=amd64 GOAMD64=v3 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOAMD64=v3 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME) >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME)
 	@echo $@ build completed.
@@ -62,7 +62,7 @@ linux-amd64v3:
 .PHONY: linux-arm64
 linux-arm64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=linux GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME) >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME)
 	@echo $@ build completed.
@@ -71,7 +71,7 @@ linux-arm64:
 .PHONY: windows-amd64
 windows-amd64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=windows GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME).exe >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).exe
 	@echo $@ build completed.
@@ -79,7 +79,7 @@ windows-amd64:
 .PHONY: windows-amd64v3
 windows-amd64v3:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=windows GOARCH=amd64 GOAMD64=v3 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 GOAMD64=v3 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME).exe >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).exe
 	@echo $@ build completed.
@@ -87,7 +87,7 @@ windows-amd64v3:
 .PHONY: windows-arm64
 windows-arm64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=windows GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME).exe $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME).exe >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).exe
 	@echo $@ build completed.
@@ -96,7 +96,7 @@ windows-arm64:
 .PHONY: darwin-amd64
 darwin-amd64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=darwin GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME) >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME)
 	@echo $@ build completed.
@@ -104,7 +104,7 @@ darwin-amd64:
 .PHONY: darwin-arm64
 darwin-arm64:
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz
-	@CGO_ENABLE=0 GOOS=darwin GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o $(OUTPUT_PATH)/$(BINARY_NAME) $(CODE_FILE)
 	@tar -cJf $(OUTPUT_PATH)/$(BINARY_NAME).$@.tar.xz -C $(OUTPUT_PATH) $(BINARY_NAME) >/dev/null
 	@rm -f $(OUTPUT_PATH)/$(BINARY_NAME)
 	@echo $@ build completed.
