@@ -40,6 +40,7 @@ func queryWait(query url.Values) (wait time.Duration) {
 
 // 发送错误响应
 func sendError(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(code)
 	_, _ = w.Write([]byte(message))
 }

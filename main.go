@@ -7,6 +7,7 @@ import (
 	"log"
 	"md2img/internal/cmd"
 	"md2img/internal/controller"
+	"md2img/internal/service/browser"
 	"net"
 	"net/http"
 	"os"
@@ -89,6 +90,7 @@ func run() (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	defer browser.Shutdown()
 
 	return errors.Join(err, server.Shutdown(ctx))
 }

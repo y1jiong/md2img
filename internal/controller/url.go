@@ -17,8 +17,8 @@ func URL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	url := string(content)
-	if url == "" {
+	targetURL := string(content)
+	if targetURL == "" {
 		sendError(w, http.StatusBadRequest, "URL不能为空")
 		return
 	}
@@ -35,12 +35,13 @@ func URL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 渲染URL为图片
-	imageData, err := browser.URL(url, width, mobile, wait)
+	imageData, err := browser.URL(targetURL, width, mobile, wait)
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("渲染失败: %s", err))
 		return
 	}
 
 	// 返回图片
+	w.Header().Set("Content-Type", "image/png")
 	_, _ = w.Write(imageData)
 }

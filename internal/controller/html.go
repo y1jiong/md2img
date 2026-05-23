@@ -36,5 +36,6 @@ func HTML(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 返回图片
+	w.Header().Set("Content-Type", "image/png")
 	_, _ = w.Write(imageData)
 }

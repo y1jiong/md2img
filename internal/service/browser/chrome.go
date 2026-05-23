@@ -22,7 +22,9 @@ const (
 )
 
 var (
-	browserCtx context.Context
+	browserCtx      context.Context
+	browserCancel   context.CancelFunc
+	allocatorCancel context.CancelFunc
 
 	initBrowser = sync.OnceFunc(func() {
 		// 创建无头Chrome实例
@@ -32,13 +34,23 @@ var (
 			chromedp.Flag("no-sandbox", true),         // 有些系统必须禁用 sandbox
 			chromedp.Flag("enable-automation", false), // 禁用自动化提示
 		}
-		allocatorCtx, _ := chromedp.NewExecAllocator(
+		var allocatorCtx context.Context
+		allocatorCtx, allocatorCancel = chromedp.NewExecAllocator(
 			context.Background(),
 			append(chromedp.DefaultExecAllocatorOptions[:], options...)...,
 		)
-		browserCtx, _ = chromedp.NewContext(allocatorCtx)
+		browserCtx, browserCancel = chromedp.NewContext(allocatorCtx)
 	})
 )
+
+func Shutdown() {
+	if browserCancel != nil {
+		browserCancel()
+	}
+	if allocatorCancel != nil {
+		allocatorCancel()
+	}
+}
 
 func HTML(html []byte, width int64, mobile bool, wait time.Duration) ([]byte, error) {
 	// 创建临时HTML文件
@@ -117,11 +129,11 @@ new Promise(resolve => {
 		resolve();
 	}, %d);
 })`
-		ctx, cancel := context.WithTimeout(ctx, timeout)
+		ctx, cancel := context.WithTimeout(ctx, timeout+500*time.Millisecond)
 		defer cancel()
 
 		if err := chromedp.Evaluate(
-			fmt.Sprintf(script, settleDelayMS, settleDelayMS),
+			fmt.Sprintf(script, settleDelayMS, int(timeout.Milliseconds())),
 			nil,
 			func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 				return p.WithAwaitPromise(true)

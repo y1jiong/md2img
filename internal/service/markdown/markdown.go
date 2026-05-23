@@ -58,7 +58,9 @@ func ToHTML(md string, pure bool) string {
 	var htmlContent string
 	{
 		var buf bytes.Buffer
-		_ = engine.Convert(util.StringToBytes(md), &buf)
+		if err := engine.Convert(util.StringToBytes(md), &buf); err != nil {
+			log.Println("goldmark convert error:", err)
+		}
 		htmlContent = buf.String()
 	}
 
